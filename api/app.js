@@ -111,10 +111,10 @@ app.get('/api/menus',async(req, res)=>{  // mostrar todos los menus
 /* GETS */
 
 app.get('/api/horas',async(req, res)=>{  // mostrar todos las horas de reserva (disponibles)
-  let horas=await listadoDatos('horasDeReseva');
+  let horas=await listadoDatos('horasDeReserva');
   let disponibles=[];
   horas.forEach((element) => {if(element.estado=='disponible'){disponibles.push(element)}});
-  res.json(disponibles)
+  res.json(disponibles);
 });
 
 app.get('/api/pedidos',async(req, res)=>{  // mostrar todos los pedidos
