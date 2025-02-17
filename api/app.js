@@ -1,5 +1,5 @@
 /*
-TO DO: hacer funciones(?) y endpoints para modificar estados de reservas, pedidos y horasDeReserva. Hacer horasDeReserva (hardcoded)
+TO DO: hacer funcion para que al aceptar una reserva cambie el estado de esa hora de reserva a reservado (FRONT)
 
 -Funcionalidad-
 menus: creacion de nuevos , visionado
@@ -7,16 +7,13 @@ pedidos: creacion de nuevos, visionado, modificacion de estado (pendiente)
 reservas: creacion de nuevos, visionado, modificacion de estado (pendiente)
 horasDeReserva: visionado (los que esten disponibles), modificacion de estado (pendiente)
 */
+
 const express = require('express');
-
-
 const app = express();
-
-
 app.use(express.json());
 
 
-async function conectarCliente(){    // funcion para conexion a cliente...
+async function conectarCliente(){    // funcion para conexion a cliente
   const { MongoClient, ServerApiVersion } = require('mongodb');
   const uri = "mongodb+srv://dccAtlMongoC_S:1001%25%25wWqq4904@clusterbuster.bl5p1.mongodb.net/?retryWrites=true&w=majority&appName=ClusterBuster";
   const client = new MongoClient(uri, {
@@ -29,7 +26,7 @@ async function conectarCliente(){    // funcion para conexion a cliente...
   return client;
 }
 
-async function listadoDatos(colecc) { // devuelve array de objetos con todos los datos
+async function listadoDatos(colecc) { // devuelve array de objetos con todos los datos de la coleccion deseada
   const cliente=await conectarCliente();
   try {
     const database = cliente.db('despliegueGITrestaurante');
@@ -53,6 +50,42 @@ async function insertarNuevoDocumento(nuevoDoc,colec) { // inserta nuevo documen
   }
 }
 
+async function modifEstado(coleccion,idkey,idvalue,estadokey,estadovalue) { // modificar estados de lo que sea
+  const cliente=await conectarCliente();
+  try {
+    const database = cliente.db('despliegueGITrestaurante');
+    const datos = database.collection(coleccion);
+    datos.updateOne(
+      { [idkey]:idvalue },
+      { $set: { [estadokey]: estadovalue } }
+    );
+  } finally{
+    await cliente.close();
+  }
+}
+
+async function cambiarDocuDeColecc(nombreKeyId,valorId,coleccOrigen,coleccDestino) {
+  const cliente=await conectarCliente();
+  try {
+    const database = cliente.db('despliegueGITrestaurante');
+
+      // Buscamos documento
+      let origen = database.collection(coleccOrigen);
+      let query = { [nombreKeyId]: valorId };
+      let documento = await origen.findOne(query);
+
+      // Lo metemos en la coleccion de destino
+      let destino = database.collection(coleccDestino);
+      await destino.insertOne(documento);
+
+      // Lo borramos de la colecc de origen
+      await origen.deleteOne(query);
+  } catch (err) {
+      console.error('Error:', err);
+  } finally {
+      await cliente.close();
+  }
+}
 
 app.get("/", (req, res) => {
   res.json({
@@ -75,6 +108,7 @@ app.get('/api/menus',async(req, res)=>{  // mostrar todos los menus
   res.json(menus);
 });
 
+/* GETS */
 
 app.get('/api/horas',async(req, res)=>{  // mostrar todos las horas de reserva (disponibles)
   let horas=await listadoDatos('horasDeReseva');
@@ -92,35 +126,36 @@ app.get('/api/reservas',async(req, res)=>{  // mostrar todos las reservas
   let reservas=await listadoDatos('reservas');
   res.json(reservas);
 });
-/*
-app.get('/api/users/:nombre', async(req, res)=>{  // busqueda por nombre
-  let resultado=[];
-  let usuariosB=await listadoUsers();
-  let userNombre=req.params.nombre;
-  userNombre.toLowerCase();
-  for(let usuario of usuariosB){
-    if(usuario['nombre'].toLowerCase().includes(userNombre.toLowerCase())){
-      resultado.push(usuario);
-    }
-  }
-  if(resultado.length>0){
-    res.json(resultado);
-  }
-  else if(resultado.length==0){
-    res.json({"mensaje":"No se han encontrado coincidencias"})
-  }
-  else{
-    res.status(404).json(({error:"Error, madafaka"}));
-  }
-});
-*/
 
+app.get('/api/histpedidos',async(req, res)=>{  // mostrar historial pedidos
+  let histPedidos=await listadoDatos('historialPedidos');
+  res.json(histPedidos);
+});
+
+app.get('/api/histreservas',async(req, res)=>{  // mostrar historial reservas
+  let histReservas=await listadoDatos('historialReservas');
+  res.json(histReservas);
+});
+
+
+/* POSTS */
+
+//{"titulo":"nuevoTitulo","primero":"nuevoPrimero","segundo":"nuevoSegundo","postre":"nuevoPostre","bebida":"nuevaBebida"}
 app.post('/api/nuevoMenu', async(req,res)=>{  // NUEVO MENU
   try{
+    let nuevoIndice;
     let menusC=await listadoDatos('menus');
-    let nuevoIndice=(menusC.length);  // calculamos nuevo indice
-    nuevoIndice++;
-    nuevoIndice.toString();
+
+    if(menusC.length>0){  // calculamos nuevo indice, de esta manera no se rompe el flujo natural de ids si se borra un objeto
+      let ultimo = menusC[menusC.length - 1];
+      nuevoIndice=ultimo.id;
+      nuevoIndice++;
+    }else{
+      nuevoIndice=(menusC.length);
+      nuevoIndice++;
+    }
+    
+    
 
     let nuevoTitulo=req.body.titulo;  // cojemos los valores para el nuevo dato
     let nuevoPrimero=req.body.primero;
@@ -134,24 +169,33 @@ app.post('/api/nuevoMenu', async(req,res)=>{  // NUEVO MENU
       "primero":nuevoPrimero,
       "segundo":nuevoSegundo,
       "postre":nuevoPostre,
-      "bebida":nuevaBebida,
+      "bebida":nuevaBebida
     };
     
     await insertarNuevoDocumento(datoNuevo,'menus') // actualizacion de BBDD, nuevo menu
-    .then(() => console.log('Datos introducidos correctamente'))
-    .catch((error) => console.error('Error al introducir datos:', error)); 
-    res.json({"mensaje":"Usuario introducido correctamente"});
+    .then(() => console.log('Operacion realizada con exito'))
+    .catch((error) => console.error('Error al introducir datos:', error));
+
+    res.json({"mensaje":"Menu introducido correctamente"});
   }catch(error){
     res.send({"mensaje":error});
   }
 });
 
+//{"idPedido":"valorDelIdDelMenuPedidoDeseado","codigoClientePersonal":"valorCCP"}
 app.post('/api/nuevoPedido', async(req,res)=>{  // NUEVO PEDIDO
   try{
+    let nuevoIndice;
     let pedidosC=await listadoDatos('pedidos');
-    let indice=(pedidosC.length);  // calculamos nuevo indice
-    indice++;
-    indice.toString();
+
+    if(pedidosC.length>0){  // calculamos nuevo indice, de esta manera no se rompe el flujo natural de ids si se borra un objeto
+      let ultimo = menusC[pedidosC.length - 1];
+      nuevoIndice=ultimo.id;
+      nuevoIndice++;
+    }else{
+      nuevoIndice=(pedidosC.length);
+      nuevoIndice++;
+    }
 
     let idPedido=req.body.idPedido;  // cojemos los valores para el nuevo dato
     let codigoClientePersonal=req.body.codigoClientePersonal;
@@ -166,20 +210,28 @@ app.post('/api/nuevoPedido', async(req,res)=>{  // NUEVO PEDIDO
     };
     
     await insertarNuevoDocumento(datoNuevo,'pedidos') // actualizacion de BBDD, nuevo pedido
-    .then(() => console.log('Datos introducidos correctamente'))
+    .then(() => console.log('Operacion realizada con exito'))
     .catch((error) => console.error('Error al introducir datos:', error)); 
-    res.json({"mensaje":"Usuario introducido correctamente"});
+    res.json({"mensaje":"Pedido enviado correctamente"});
   }catch(error){
     res.send({"mensaje":error});
   }
 });
 
+//{"horaReserva":"idDeHoraReservaDeseada","codigoClientePersonal":"valorCCP"}
 app.post('/api/nuevaReserva', async(req,res)=>{  // NUEVA RESERVA
   try{
+    let nuevoIndice;
     let pedidosC=await listadoDatos('reservas');
-    let indice=(pedidosC.length);  // calculamos nuevo indice
-    indice++;
-    indice.toString();
+
+    if(menusC.length>0){  // calculamos nuevo indice, de esta manera no se rompe el flujo natural de ids si se borra un objeto
+      let ultimo = pedidosC[pedidosC.length - 1];
+      nuevoIndice=ultimo.id;
+      nuevoIndice++;
+    }else{
+      nuevoIndice=(pedidosC.length);
+      nuevoIndice++;
+    }
 
     let horaReserva=req.body.horaReserva;  // cojemos los valores para el nuevo dato
     let codigoClientePersonal=req.body.codigoClientePersonal;
@@ -193,10 +245,41 @@ app.post('/api/nuevaReserva', async(req,res)=>{  // NUEVA RESERVA
       "estado":estado
     };
     
-    await insertarNuevoDocumento(datoNuevo,'pedidos') // actualizacion de BBDD, nuevo pedido
-    .then(() => console.log('Datos introducidos correctamente'))
+    await insertarNuevoDocumento(datoNuevo,'reservas') // actualizacion de BBDD, nuevo pedido
+    .then(() => console.log('Operacion realizada con exito'))
     .catch((error) => console.error('Error al introducir datos:', error)); 
-    res.json({"mensaje":"Usuario introducido correctamente"});
+    res.json({"mensaje":"Reserva enviada correctamente"});
+  }catch(error){
+    res.send({"mensaje":error});
+  }
+});
+
+//{"coleccion":"nombreDeColeccion","idkey":"nombreCampoId","idvalue":"valorDeId","estadokey":"nombreCampoEstado","estadovalue":"valorDeNuevoEstado"}
+app.post('/api/modEstado', async(req,res)=>{ // MODIFICAR ESTADO DE DOCUMENTO
+  try{
+    let coleccion=req.body.coleccion;
+    let idkey=req.body.idkey;
+    let idvalue=req.body.idvalue;
+    let estadokey=req.body.estadokey;
+    let estadovalue=req.body.estadovalue;
+
+    modifEstado(coleccion,idkey,idvalue,estadokey,estadovalue);
+    res.json({"mensaje":"Estado modificado correctamente"});
+  }catch(error){
+    res.send({"mensaje":error});
+  }
+});
+
+//{"idkey":"nombreCampoId","idvalue":"valorDeId","coleccOrigen":"nombreColeccOriginal","coleccDestino":"nombreColeccDestino"}
+app.post('/api/moverDocumento', async(req,res)=>{ // MOVER A OTRA COLECCION Y BORRAR DE LA ORIGINAL
+  try{
+    let idkey=req.body.idkey;
+    let idvalue=req.body.idvalue;
+    let coleccOrigen=req.body.coleccOrigen;
+    let coleccDestino=req.body.coleccDestino;
+
+    cambiarDocuDeColecc(idkey,idvalue,coleccOrigen,coleccDestino);
+    res.json({"mensaje":"Documento trasladado correctamente"});
   }catch(error){
     res.send({"mensaje":error});
   }
