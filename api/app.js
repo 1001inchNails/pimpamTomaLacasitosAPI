@@ -83,10 +83,10 @@ async function modifMenu(idvalue, primero, segundo, postre, bebida, titulo) { //
     };
 
     const result = await datos.updateOne(query, update);
-    console.log(result);
+    //console.log(result);
 
     if (result.matchedCount === 0) {
-      throw new Error(`No document found with id: ${idvalue}`);
+      throw new Error(`No document, bitch: ${idvalue}`);
     }
   } finally {
     await cliente.close();
@@ -307,7 +307,7 @@ app.post('/api/modifMenu', async(req,res)=>{ // MODIFICAR VALORES DE MENU
     let bebida=req.body.bebida;
     let titulo=req.body.titulo;
 
-    await modifMenu(idvalue,primero,segundo,postre,bebida,titulo);
+    modifMenu(idvalue,primero,segundo,postre,bebida,titulo);
     res.json({"mensaje":"Menu modificado correctamente"});
   }catch(error){
     res.send({"mensaje":error});
