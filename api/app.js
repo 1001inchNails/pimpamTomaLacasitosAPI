@@ -64,23 +64,31 @@ async function modifEstado(coleccion,idkey,idvalue,estadokey,estadovalue) { // m
   }
 }
 
-async function modifMenu(idvalue,primero,segundo,postre,bebida,titulo) { // modificar valores de menu, mediante id de objeto
-  const cliente=await conectarCliente();
+async function modifMenu(idvalue, primero, segundo, postre, bebida, titulo) { // modificar valores de menu, por id
+  const cliente = await conectarCliente();
   try {
     const database = cliente.db('despliegueGITrestaurante');
     const datos = database.collection('menus');
-    datos.updateOne(
-      { 'id':idvalue },
-      { $set: {
+
+    const query = { 'id': idvalue };
+
+    const update = {
+      $set: {
         'primero': primero,
         'segundo': segundo,
         'postre': postre,
         'bebida': bebida,
         'titulo': titulo
-        }
       }
-    );
-  } finally{
+    };
+
+    const result = await datos.updateOne(query, update);
+    console.log(result);
+
+    if (result.matchedCount === 0) {
+      throw new Error(`No document found with id: ${idvalue}`);
+    }
+  } finally {
     await cliente.close();
   }
 }
