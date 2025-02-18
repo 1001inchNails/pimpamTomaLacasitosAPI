@@ -70,13 +70,13 @@ async function modifMenu(idvalue,primero,segundo,postre,bebida,titulo) { // modi
     const database = cliente.db('despliegueGITrestaurante');
     const datos = database.collection('menus');
     datos.updateOne(
-      { id:idvalue },
+      { 'id':idvalue },
       { $set: {
-        primero: primero,
-        segundo: segundo,
-        postre: postre,
-        bebida: bebida,
-        titulo: titulo
+        'primero': primero,
+        'segundo': segundo,
+        'postre': postre,
+        'bebida': bebida,
+        'titulo': titulo
         }
       }
     );
@@ -299,7 +299,7 @@ app.post('/api/modifMenu', async(req,res)=>{ // MODIFICAR VALORES DE MENU
     let bebida=req.body.bebida;
     let titulo=req.body.titulo;
 
-    modifMenu(idvalue,primero,segundo,postre,bebida,titulo);
+    await modifMenu(idvalue,primero,segundo,postre,bebida,titulo);
     res.json({"mensaje":"Menu modificado correctamente"});
   }catch(error){
     res.send({"mensaje":error});
