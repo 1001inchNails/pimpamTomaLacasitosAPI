@@ -307,7 +307,7 @@ app.post('/api/modifMenu', async(req,res)=>{ // MODIFICAR VALORES DE MENU
     let bebida=req.body.bebida;
     let titulo=req.body.titulo;
 
-    modifMenu(idvalue,primero,segundo,postre,bebida,titulo);
+    await modifMenu(idvalue,primero,segundo,postre,bebida,titulo);
     res.json({"mensaje":"Menu modificado correctamente"});
   }catch(error){
     res.send({"mensaje":error});
