@@ -64,6 +64,27 @@ async function modifEstado(coleccion,idkey,idvalue,estadokey,estadovalue) { // m
   }
 }
 
+async function modifMenu(idvalue,primero,segundo,postre,bebida,titulo) { // modificar valores de menu, mediante id de objeto
+  const cliente=await conectarCliente();
+  try {
+    const database = cliente.db('despliegueGITrestaurante');
+    const datos = database.collection('menus');
+    datos.updateOne(
+      { 'id':idvalue },
+      { $set: {
+        'primero': primero,
+        'segundo': segundo,
+        'postre': postre,
+        'bebida': bebida,
+        'titulo': titulo
+        }
+      }
+    );
+  } finally{
+    await cliente.close();
+  }
+}
+
 async function cambiarDocuDeColecc(nombreKeyId,valorId,coleccOrigen,coleccDestino) {
   const cliente=await conectarCliente();
   try {
@@ -101,14 +122,12 @@ app.use((req, res, next) => {
   next();
 });
 
-
+/* GETS */
 
 app.get('/api/menus',async(req, res)=>{  // mostrar todos los menus
   let menus=await listadoDatos('menus');
   res.json(menus);
 });
-
-/* GETS */
 
 app.get('/api/horas',async(req, res)=>{  // mostrar todos las horas de reserva (disponibles)
   let horas=await listadoDatos('horasDeReserva');
@@ -265,6 +284,23 @@ app.post('/api/modEstado', async(req,res)=>{ // MODIFICAR ESTADO DE DOCUMENTO
 
     modifEstado(coleccion,idkey,idvalue,estadokey,estadovalue);
     res.json({"mensaje":"Estado modificado correctamente"});
+  }catch(error){
+    res.send({"mensaje":error});
+  }
+});
+
+//{"idvalue":"idvalueDeMenuACambiar","primero":"primerPlato","segundo":"segundoPlato","postre":"postre","bebida":"bebida","titulo":"descripcionDelMenu"}
+app.post('/api/modifMenu', async(req,res)=>{ // MODIFICAR VALORES DE MENU
+  try{
+    let idvalue=req.body.idvalue;
+    let primero=req.body.primero;
+    let segundo=req.body.segundo;
+    let postre=req.body.postre;
+    let bebida=req.body.bebida;
+    let titulo=req.body.titulo;
+
+    modifMenu(idvalue,primero,segundo,postre,bebida,titulo);
+    res.json({"mensaje":"Menu modificado correctamente"});
   }catch(error){
     res.send({"mensaje":error});
   }
