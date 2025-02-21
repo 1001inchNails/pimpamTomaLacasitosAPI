@@ -169,7 +169,6 @@ app.get('/api/histreservas',async(req, res)=>{  // mostrar historial reservas
 
 //{"titulo":"nuevoTitulo","primero":"nuevoPrimero","segundo":"nuevoSegundo","postre":"nuevoPostre","bebida":"nuevaBebida"}
 app.post('/api/nuevoMenu', async(req,res)=>{  // NUEVO MENU
-  console.log(req.body);
   try{
     let nuevoIndice;
     let menusC=await listadoDatos('menus');
