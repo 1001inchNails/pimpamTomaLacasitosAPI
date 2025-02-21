@@ -12,6 +12,12 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 
+const cors = require('cors');
+app.use(cors({
+  origin: 'https://your-frontend-domain.com', // or '*' to allow all origins
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 async function conectarCliente(){    // funcion para conexion a cliente
   const { MongoClient, ServerApiVersion } = require('mongodb');
