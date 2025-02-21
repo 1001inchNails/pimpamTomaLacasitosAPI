@@ -169,6 +169,7 @@ app.get('/api/histreservas',async(req, res)=>{  // mostrar historial reservas
 
 //{"titulo":"nuevoTitulo","primero":"nuevoPrimero","segundo":"nuevoSegundo","postre":"nuevoPostre","bebida":"nuevaBebida"}
 app.post('/api/nuevoMenu', async(req,res)=>{  // NUEVO MENU
+  console.log(req.body);
   try{
     let nuevoIndice;
     let menusC=await listadoDatos('menus');
@@ -189,7 +190,7 @@ app.post('/api/nuevoMenu', async(req,res)=>{  // NUEVO MENU
     let nuevoSegundo=req.body.segundo;
     let nuevoPostre=req.body.postre;
     let nuevaBebida=req.body.bebida;
-
+    console.log("1",datoNuevo);
     let datoNuevo={
       "id":nuevoIndice.toString(),
       "titulo":nuevoTitulo,
@@ -198,11 +199,11 @@ app.post('/api/nuevoMenu', async(req,res)=>{  // NUEVO MENU
       "postre":nuevoPostre,
       "bebida":nuevaBebida
     };
-    
+    console.log("2",datoNuevo);
     await insertarNuevoDocumento(datoNuevo,'menus') // actualizacion de BBDD, nuevo menu
     .then(() => console.log('Operacion realizada con exito'))
     .catch((error) => console.error('Error al introducir datos:', error));
-
+    console.log("3",datoNuevo);
     res.json({"mensaje":"Menu introducido correctamente"});
   }catch(error){
     res.send({"mensaje":error});
