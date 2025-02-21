@@ -189,7 +189,6 @@ app.post('/api/nuevoMenu', async(req,res)=>{  // NUEVO MENU
     let nuevoSegundo=req.body.segundo;
     let nuevoPostre=req.body.postre;
     let nuevaBebida=req.body.bebida;
-
     let datoNuevo={
       "id":nuevoIndice.toString(),
       "titulo":nuevoTitulo,
@@ -198,11 +197,9 @@ app.post('/api/nuevoMenu', async(req,res)=>{  // NUEVO MENU
       "postre":nuevoPostre,
       "bebida":nuevaBebida
     };
-    
     await insertarNuevoDocumento(datoNuevo,'menus') // actualizacion de BBDD, nuevo menu
     .then(() => console.log('Operacion realizada con exito'))
     .catch((error) => console.error('Error al introducir datos:', error));
-
     res.json({"mensaje":"Menu introducido correctamente"});
   }catch(error){
     res.send({"mensaje":error});
