@@ -12,12 +12,6 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 
-const cors = require('cors');
-app.use(cors({
-  origin: 'https://your-frontend-domain.com', // or '*' to allow all origins
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
 
 async function conectarCliente(){    // funcion para conexion a cliente
   const { MongoClient, ServerApiVersion } = require('mongodb');
@@ -206,6 +200,7 @@ app.post('/api/nuevoMenu', async(req,res)=>{  // NUEVO MENU
     await insertarNuevoDocumento(datoNuevo,'menus') // actualizacion de BBDD, nuevo menu
     .then(() => console.log('Operacion realizada con exito'))
     .catch((error) => console.error('Error al introducir datos:', error));
+    console.log("3",datoNuevo);
     res.json({"mensaje":"Menu introducido correctamente"});
   }catch(error){
     res.send({"mensaje":error});
