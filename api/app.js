@@ -137,11 +137,16 @@ app.get('/api/menus',async(req, res)=>{  // mostrar todos los menus
   res.json(menus);
 });
 
-app.get('/api/horas',async(req, res)=>{  // mostrar todos las horas de reserva (disponibles)
+app.get('/api/horas',async(req, res)=>{  // mostrar todas las horas de reserva (disponibles)
   let horas=await listadoDatos('horasDeReserva');
   let disponibles=[];
   horas.forEach((element) => {if(element.estado=='disponible'){disponibles.push(element)}});
   res.json(disponibles);
+});
+
+app.get('/api/horastodas',async(req, res)=>{  // mostrar todas las horas de reserva
+  let horas=await listadoDatos('horasDeReserva');
+  res.json(horas);
 });
 
 app.get('/api/pedidos',async(req, res)=>{  // mostrar todos los pedidos
