@@ -322,7 +322,7 @@ app.post('/api/moverDocumento', async(req,res)=>{ // MOVER A OTRA COLECCION Y BO
     let coleccOrigen=req.body.coleccOrigen;
     let coleccDestino=req.body.coleccDestino;
 
-    cambiarDocuDeColecc(idkey,idvalue,coleccOrigen,coleccDestino);
+    await cambiarDocuDeColecc(idkey,idvalue,coleccOrigen,coleccDestino);
     res.json({"mensaje":"Documento trasladado correctamente"});
   }catch(error){
     res.send({"mensaje":error});
