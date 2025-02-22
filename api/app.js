@@ -169,6 +169,11 @@ app.get('/api/histreservas',async(req, res)=>{  // mostrar historial reservas
   res.json(histReservas);
 });
 
+app.get('/api/histmenus',async(req, res)=>{  // mostrar historial menus
+  let histReservas=await listadoDatos('historialMenus');
+  res.json(histReservas);
+});
+
 
 /* POSTS */
 
