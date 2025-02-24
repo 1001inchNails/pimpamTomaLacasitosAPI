@@ -261,7 +261,7 @@ app.post('/api/nuevaReserva', async(req,res)=>{  // NUEVA RESERVA
     let nuevoIndice;
     let pedidosC=await listadoDatos('reservas');
 
-    if(menusC.length>0){  // calculamos nuevo indice, de esta manera no se rompe el flujo natural de ids si se borra un objeto
+    if(pedidosC.length>0){  // calculamos nuevo indice, de esta manera no se rompe el flujo natural de ids si se borra un objeto
       let ultimo = pedidosC[pedidosC.length - 1];
       nuevoIndice=ultimo.id;
       nuevoIndice++;
