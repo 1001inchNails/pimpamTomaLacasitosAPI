@@ -339,5 +339,23 @@ app.post('/api/moverDocumento', async(req,res)=>{ // MOVER A OTRA COLECCION Y BO
   }
 });
 
+//{"nombre":"nombreCampo","password":"passwordCampo"}
+app.post('/api/checkAdmin', async(req,res)=>{ // ADMIN CHECK
+  try{
+    let name=req.body.nombre;
+    let pass=req.body.password;
+
+    if(name=="admin" && pass=="admin"){
+      res.json({"mensaje":"FUCK YEAH"});
+    }else{
+      res.json({"mensaje":"FUCK NO"});
+    }
+
+    
+  }catch(error){
+    res.send({"mensaje":error});
+  }
+});
+
 module.exports = app;
 
