@@ -250,8 +250,8 @@ app.post('/api/nuevoPedido', async(req,res)=>{  // NUEVO PEDIDO
     .then(() => console.log('Operacion realizada con exito'))
     .catch((error) => console.error('Error al introducir datos:', error)); 
     res.json({"mensaje":"Pedido enviado correctamente"});
-  }catch(error){
-    res.send({"mensaje":error});
+  } catch (error) {
+    res.status(500).json({ "mensaje": error.message });
   }
 });
 
