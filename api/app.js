@@ -276,7 +276,7 @@ app.post('/api/nuevaReserva', async(req,res)=>{  // NUEVA RESERVA
 
 
     let datoNuevo={
-      "id":indice.toString(),
+      "id":nuevoIndice.toString(),
       "horaReserva":horaReserva,
       "codigoClientePersonal":codigoClientePersonal,
       "estado":estado
@@ -286,8 +286,8 @@ app.post('/api/nuevaReserva', async(req,res)=>{  // NUEVA RESERVA
     .then(() => console.log('Operacion realizada con exito'))
     .catch((error) => console.error('Error al introducir datos:', error)); 
     res.json({"mensaje":"Reserva enviada correctamente"});
-  }catch(error){
-    res.send({"mensaje":error});
+  } catch (error) {
+    res.status(500).json({ "mensaje": error.message });
   }
 });
 
