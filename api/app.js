@@ -240,7 +240,7 @@ app.post('/api/nuevoPedido', async(req,res)=>{  // NUEVO PEDIDO
 
 
     let datoNuevo={
-      "id":indice.toString(),
+      "id":nuevoIndice.toString(),
       "idPedido":idPedido,
       "codigoClientePersonal":codigoClientePersonal,
       "estado":estado
