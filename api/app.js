@@ -7,15 +7,18 @@ pedidos: creacion de nuevos, visionado, modificacion de estado (pendiente)
 reservas: creacion de nuevos, visionado, modificacion de estado (pendiente)
 horasDeReserva: visionado (los que esten disponibles), modificacion de estado (pendiente)
 */
-
+require('dotenv').config();
 const express = require('express');
 const app = express();
 app.use(express.json());
 
+const nombreBBDD = process.env.DDBB_NAME;
+const adminNombre = process.env.ADMIN_NAME;
+const adminPass = process.env.ADMIN_PASS;
 
 async function conectarCliente(){    // funcion para conexion a cliente
   const { MongoClient, ServerApiVersion } = require('mongodb');
-  const uri = "mongodb+srv://dccAtlMongoC_S:1001%25%25wWqq4904@clusterbuster.bl5p1.mongodb.net/?retryWrites=true&w=majority&appName=ClusterBuster";
+  const uri = MONGO_URI;
   const client = new MongoClient(uri, {
     serverApi: {
       version: ServerApiVersion.v1,
@@ -29,7 +32,7 @@ async function conectarCliente(){    // funcion para conexion a cliente
 async function listadoDatos(colecc) { // devuelve array de objetos con todos los datos de la coleccion deseada
   const cliente=await conectarCliente();
   try {
-    const database = cliente.db('despliegueGITrestaurante');
+    const database = cliente.db(nombreBBDD);
     const datos = database.collection(colecc);
     const query = {};
     let dato = await datos.find(query).toArray();
@@ -42,7 +45,7 @@ async function listadoDatos(colecc) { // devuelve array de objetos con todos los
 async function insertarNuevoDocumento(nuevoDoc,colec) { // inserta nuevo documento en la coleccion
   const cliente=await conectarCliente();
   try {
-    const database = cliente.db('despliegueGITrestaurante');
+    const database = cliente.db(nombreBBDD);
     const datos = database.collection(colec);
     await datos.insertOne(nuevoDoc);
   } finally {
@@ -53,7 +56,7 @@ async function insertarNuevoDocumento(nuevoDoc,colec) { // inserta nuevo documen
 async function modifEstado(coleccion,idkey,idvalue,estadokey,estadovalue) { // modificar estados de lo que sea
   const cliente=await conectarCliente();
   try {
-    const database = cliente.db('despliegueGITrestaurante');
+    const database = cliente.db(nombreBBDD);
     const datos = database.collection(coleccion);
     datos.updateOne(
       { [idkey]:idvalue },
@@ -67,7 +70,7 @@ async function modifEstado(coleccion,idkey,idvalue,estadokey,estadovalue) { // m
 async function modifMenu(idvalue, primero, segundo, postre, bebida, titulo) { // modificar valores de menu, por id
   const cliente = await conectarCliente();
   try {
-    const database = cliente.db('despliegueGITrestaurante');
+    const database = cliente.db(nombreBBDD);
     const datos = database.collection('menus');
 
     const query = { 'id': idvalue };
@@ -96,7 +99,7 @@ async function modifMenu(idvalue, primero, segundo, postre, bebida, titulo) { //
 async function cambiarDocuDeColecc(nombreKeyId,valorId,coleccOrigen,coleccDestino) {
   const cliente=await conectarCliente();
   try {
-    const database = cliente.db('despliegueGITrestaurante');
+    const database = cliente.db(nombreBBDD);
 
       // Buscamos documento
       let origen = database.collection(coleccOrigen);
@@ -345,7 +348,7 @@ app.post('/api/checkAdmin', async(req,res)=>{ // ADMIN CHECK
     let name=req.body.nombre;
     let pass=req.body.password;
 
-    if(name=="admin" && pass=="admin"){
+    if(name==adminNombre && pass==adminPass){
       res.json({"mensaje":"FUCK YEAH"});
     }else{
       res.json({"mensaje":"FUCK NO"});
