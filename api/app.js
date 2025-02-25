@@ -12,13 +12,14 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 
+const mongoURI = process.env.MONGO_URI;
 const nombreBBDD = process.env.DDBB_NAME;
 const adminNombre = process.env.ADMIN_NAME;
 const adminPass = process.env.ADMIN_PASS;
 
 async function conectarCliente(){    // funcion para conexion a cliente
   const { MongoClient, ServerApiVersion } = require('mongodb');
-  const uri = MONGO_URI;
+  const uri = mongoURI;
   const client = new MongoClient(uri, {
     serverApi: {
       version: ServerApiVersion.v1,
